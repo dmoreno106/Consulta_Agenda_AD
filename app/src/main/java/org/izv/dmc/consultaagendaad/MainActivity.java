@@ -150,16 +150,11 @@ public class MainActivity extends AppCompatActivity {
 
         }
 */
-        String number2="0";
-        try {
-             number2 = String.valueOf(etPhone.getText().charAt(0) + "%");
-        }catch (Exception e){
 
-        }
 
         String[] projeccion2 = new String[] { ContactsContract.Data.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.TYPE };
-        String selection2=ContactsContract.Data.MIMETYPE+"=?"+" AND "+ContactsContract.CommonDataKinds.Phone.NUMBER +"= ?";
-        String[] arguments2 =new String[]{ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,number2};
+        String selection2=ContactsContract.Data.MIMETYPE+"=?"+" AND "+ContactsContract.CommonDataKinds.Phone.NUMBER +" like ?";
+        String[] arguments2 =new String[]{ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,etPhone.getText()+"%"};
         String order2 = ContactsContract.Data.DISPLAY_NAME + " ASC";
 
         Cursor cursor2 = getContentResolver().query(ContactsContract.Data.CONTENT_URI, projeccion2, selection2, arguments2, order2);
