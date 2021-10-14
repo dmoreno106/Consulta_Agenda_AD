@@ -1,11 +1,9 @@
 package org.izv.dmc.consultaagendaad;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -114,72 +112,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void search() {
 
-        //tvResult.setText("a pelo ya si");
-        //ContentProvider Proveedor de contenidos
-        //ContentResolver Consultor de contenidos
-        //Queries the user dictionary and returns results
-        //url:https:ieszaidinvergeles.org/carpeta/carpeta2/pagina.html?dato=1
-        //uri:protocolo://direccion/rutar/recurso
-/*
-        Cursor cursor=getContentResolver().query(UserDictionary.Words.CONTENT_URI,  //The content URI of the words table
-                new String[]{"projection"},                                         //The columns to return for each row
-                "campo1=? and campo2>? or campo3=? ",                                         //Selection criteria
-                new String[]{"pepe","4","23"},                                     //The sort order for the returned rows
-                "campo5,campo3,campo4");
+        String[] projection = new String[] {ContactsContract.Data.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
+        String selection=ContactsContract.Data.MIMETYPE+"=?"+" AND "+ContactsContract.CommonDataKinds.Phone.NUMBER +" like ?";
+        String[] arguments =new String[]{ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,etPhone.getText()+"%"};
+        String order= ContactsContract.Data.DISPLAY_NAME + " ASC";
 
- */
-        /*
-        Uri uri= ContactsContract.Contacts.CONTENT_URI;
-        String proyeccion[]=new String[]{ContactsContract.Contacts.DISPLAY_NAME};
-        String seleccion=ContactsContract.Contacts.IN_VISIBLE_GROUP+"=? and"+ContactsContract.Contacts.HAS_PHONE_NUMBER+"=?";
-        String argumentos[]= new String[]{"1,1"};
-        seleccion=null;
-        argumentos=null;
-        String orden=ContactsContract.Contacts.DISPLAY_NAME+"collate localized asc";
-        Cursor cursor=getContentResolver().query(uri,proyeccion,seleccion,argumentos,orden);
-        String[] columnas=cursor.getColumnNames();
-        for (String s:columnas) {
-           Log.v(TAG,s);
+        Cursor cursor2 = getContentResolver().query(ContactsContract.Data.CONTENT_URI, projection, selection, arguments, order);
 
-        }
-        String displayName;
-        int columna=cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-        while (cursor.moveToNext()){
-            displayName=cursor.getString(columna);
-            Log.v(TAG,displayName);
-
-        }
-*/
-
-
-        String[] projeccion2 = new String[] { ContactsContract.Data.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.TYPE };
-        String selection2=ContactsContract.Data.MIMETYPE+"=?"+" AND "+ContactsContract.CommonDataKinds.Phone.NUMBER +" like ?";
-        String[] arguments2 =new String[]{ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,etPhone.getText()+"%"};
-        String order2 = ContactsContract.Data.DISPLAY_NAME + " ASC";
-
-        Cursor cursor2 = getContentResolver().query(ContactsContract.Data.CONTENT_URI, projeccion2, selection2, arguments2, order2);
-
-        tvResult.setText("");
+        tvResult.setText("Coincidencias: \n");
         while(cursor2.moveToNext()){
-            tvResult.append("Nombre: " + cursor2.getString(0) + " Número: " + cursor2.getString(1)+"\n");
+            tvResult.append("Nombre: "+cursor2.getString(0)+" Número: "+cursor2.getString(1)+"\n");
         }
         cursor2.close();
-
-           /*
-        int columnaNombre=cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-        int columnaNumero=cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-        String nombre,numero;
-        while (cursor2.moveToNext()){
-            nombre=cursor2.getString(columnaNombre);
-            numero=cursor2.getString(columnaNumero);
-            Log.v(TAG,nombre+":"+numero);
-        }
-
-        for (String s:columnas2) {
-            int pos= cursor2.getColumnIndex(s);
-            String valor=cursor2.getString(pos);
-            Log.v(TAG,pos+valor);
-        }*/
     }
 
     private void searchIfPermitted() {
