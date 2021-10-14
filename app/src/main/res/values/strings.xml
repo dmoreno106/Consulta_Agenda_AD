@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Consulta Agenda AD</string>
+    <string name="hint_phone">Introduce the phone number</string>
+    <string name="Button_search">search</string>
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
+    <string name="title">Read Contacts Permission Required</string>
+    <string name="message">Rationale explanation....</string>
+</resources>
