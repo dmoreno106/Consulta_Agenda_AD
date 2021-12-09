@@ -63,9 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
-        //request code
-        //permissions
-        //grantResults
     }
 
     @Override
