@@ -36,11 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btsearch;
     private EditText etPhone;
     private TextView tvResult;
-
     private SharedPreferences preferences;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
