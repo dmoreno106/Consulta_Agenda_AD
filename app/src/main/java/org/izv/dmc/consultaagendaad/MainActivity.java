@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.UserDictionary;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,18 +29,25 @@ import android.widget.TextView;
 import org.izv.dmc.consultaagendaad.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String FIRSTTIME="firstTime";
     private final String TAG="xyzyx";
     private final int CONTACT_PERMISSION=1;
 
-    private Button btsearch;// = findViewById(R.id.btSearch); no se puede hacer: el layout todavia no existe por lo que no puede referenciarse un elemento del layout
+    private Button btsearch;
     private EditText etPhone;
     private TextView tvResult;
+
+    private SharedPreferences preferences;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        preferences= android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+
         Log.v(TAG,"onCreate");//verbose
         initialize();
     }
@@ -54,11 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.ajustes) {
             ViewSettings();
             return true;
@@ -95,9 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
-        //request code
-        //permissions
-        //grantResults
     }
 
     @Override
@@ -135,10 +135,20 @@ public class MainActivity extends AppCompatActivity {
             etPhone.setText(lastSearch);
         }
 
+        //este if sirve para que la primera vez que se instale la app y no tenga permisos
+        //no intente hacer la búsqueda de contactos (con lo cual pedirá que le demos permisos nada más abrirla), así cuando nos pida permisos será cuando
+        //realizaremos la búsqueda. En la siguiente ejecución los permisos
+        if(getFirstTime()){
+            searchIfPermitted();
+
+        }
+
         btsearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 searchIfPermitted();
+
             }
         });
     }
@@ -148,47 +158,55 @@ public class MainActivity extends AppCompatActivity {
         requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},CONTACT_PERMISSION);
     }
 
+    public void  setFirstTime(){
+        SharedPreferences.Editor editor =preferences.edit();
+        editor.putBoolean(FIRSTTIME,true);
+        editor.commit();
+    }
+
+    public boolean getFirstTime(){
+        return preferences.getBoolean(FIRSTTIME,false);
+    }
+
 
     private void search() {
-
+        setFirstTime();
         tvResult.setText("");
-
-
         String phone=etPhone.getText().toString();
         phone=searchFormat(phone);
         SharedPreferences sharedPreferences =PreferenceManager.getDefaultSharedPreferences(this);
 
         String cleanSearch=phone.replace("%","");
-
         SharedPreferences prefenciasActividad=getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=prefenciasActividad.edit();
         editor.putString(getString(R.string.last_Search),cleanSearch);
         editor.commit();
 
-
-        SharedPreferences p1=getSharedPreferences("preferenciascompartidas",Context.MODE_PRIVATE);
+        //<--shared preferences (apuntes)-->
+       /* SharedPreferences p1=getSharedPreferences("preferenciascompartidas",Context.MODE_PRIVATE);
         SharedPreferences p2=getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences p3=PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences p4=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         SharedPreferences.Editor ed1=p1.edit();
         SharedPreferences.Editor ed2=p2.edit();
-        SharedPreferences.Editor ed3=p3.edit();
         SharedPreferences.Editor ed4= p4.edit();
 
         ed1.putString("ved1","v1");//preferenciascompartidas.xml
         ed2.putString("ved2","v2");//MainActivity.xml
-        ed3.putString("ved3","v3");//org.izv.dmc.consultaagendaad_preferences
         ed4.putString("ved4","v4");//org.izv.dmc.consultaagendaad_preferences
-
-
+        */
+        SharedPreferences p3=PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor ed3=p3.edit();
+        ed3.putString("ved3","v3");//org.izv.dmc.consultaagendaad_preferences
 
         String email = sharedPreferences.getString("email", getString(R.string.no_email));
         String username = sharedPreferences.getString("username", getString(R.string.no_username));
         tvResult.append(email+"\n"+username+"\n\n");
 
+      searchContacts(phone);
+    }
 
-
+    private void searchContacts(String phone) {
         Uri uri2=ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         Log.v(TAG,uri2.toString());
 
@@ -199,9 +217,9 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor cursor2 = getContentResolver().query(ContactsContract.Data.CONTENT_URI, projeccion2, selection2, arguments2, order2);
 
-        //tvResult.setText("");
+        tvResult.append("Coincidencias: \n");
         while(cursor2.moveToNext()){
-            tvResult.append("Nombre: " + cursor2.getString(0) + " Número: " + cursor2.getString(1)+"\n");
+            tvResult.append("-Nombre: " + cursor2.getString(0) + " Número: " + cursor2.getString(1)+"\n");
         }
         cursor2.close();
     }
@@ -259,6 +277,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
     private void ViewSettings() {
         //intent -> intención
         //intenciones explicitas o implicitas
